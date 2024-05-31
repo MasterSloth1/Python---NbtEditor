@@ -1,0 +1,65 @@
+import os
+import nbtlib
+import json
+import path
+
+# Function to convert an NBT tag to a Python data type
+def convert_nbt_to_python(tag):
+    if isinstance(tag, nbtlib.tag.Compound):
+        return {name: convert_nbt_to_python(subtag) for name, subtag in tag.items()}
+    elif isinstance(tag, nbtlib.tag.List):
+        return [convert_nbt_to_python(subtag) for subtag in tag]
+    elif isinstance(tag, nbtlib.tag.Int):
+        return int(tag)
+    elif isinstance(tag, nbtlib.tag.String):
+        return str(tag)
+    elif isinstance(tag, nbtlib.tag.IntArray):
+        return list(tag)
+    elif isinstance(tag, nbtlib.tag.Byte):
+        return int(tag)
+    elif isinstance(tag, nbtlib.tag.Long):
+        return int(tag)
+    elif isinstance(tag, nbtlib.tag.Float):
+        return float(tag)
+    elif isinstance(tag, nbtlib.tag.Double):
+        return float(tag)
+    elif isinstance(tag, nbtlib.tag.Short):
+        return int(tag)
+    elif isinstance(tag, nbtlib.tag.ByteArray):
+        return list(tag)
+    else:
+        return tag.value
+
+# Specify the root directory
+root_dir = path.path
+
+# Walk through the root directory
+for dir_path, dir_names, file_names in os.walk(root_dir):
+    # Process each file
+    for file_name in file_names:
+        # Check if the file is an .nbt file
+        if file_name.endswith(".nbt"):
+            # Construct the full file path
+            nbt_file_path = os.path.join(dir_path, file_name)
+
+            # Print the name of the file being processed
+            print(f"Processing file: {nbt_file_path}")
+
+            # Load the NBT data from the file
+            nbt_data = nbtlib.load(nbt_file_path)
+
+            # Convert the NBT data to a Python dictionary
+            nbt_dict = convert_nbt_to_python(nbt_data.root)
+
+            # Convert the Python dictionary to a JSON string
+            json_str = json.dumps(nbt_dict)
+
+            # Construct the .json file path
+            json_file_path = os.path.splitext(nbt_file_path)[0] + ".json"
+
+            # Save the JSON string to a file
+            with open(json_file_path, "w") as f:
+                f.write(json_str)
+
+            # Print a success message
+            print(f"Saved JSON data to: {json_file_path}")
